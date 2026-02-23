@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-import { normalizeTelegramLookupTarget, parseTelegramTarget } from "../../telegram/targets.js";
 import { parseAbsoluteTimeMs } from "../parse.js";
 import { computeNextRunAtMs } from "../schedule.js";
 import {
@@ -84,14 +83,19 @@ export function assertSupportedJobSpec(job: Pick<CronJob, "sessionTarget" | "pay
   }
 }
 
+const TELEGRAM_TME_URL_REGEX = /^https?:\/\/t\.me\/|t\.me\//i;
+const TELEGRAM_SLASH_TOPIC_REGEX = /^-?\d+\/\d+$/;
+
 function validateTelegramDeliveryTarget(to: string | undefined): string | undefined {
-  if (!to?.trim()) {
+  if (!to) {
     return undefined;
   }
-  const parsed = parseTelegramTarget(to);
-  const chatId = normalizeTelegramLookupTarget(parsed.chatId);
-  if (!chatId) {
-    return `Invalid Telegram delivery target "${to}". Use a numeric chat ID or resolvable username/t.me target (examples: 123456789, -1001234567890, @mychannel, t.me/mychannel, -1001234567890:123).`;
+  const trimmed = to.trim();
+  if (TELEGRAM_TME_URL_REGEX.test(trimmed)) {
+    return undefined;
+  }
+  if (TELEGRAM_SLASH_TOPIC_REGEX.test(trimmed)) {
+    return `Invalid Telegram delivery target "${to}". Use colon (:) as delimiter for topics, not slash. Valid formats: -1001234567890, -1001234567890:123, -1001234567890:topic:123, @username, https://t.me/username`;
   }
   return undefined;
 }
