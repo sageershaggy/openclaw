@@ -68,6 +68,7 @@ import { renderAgents } from "./views/agents.ts";
 import { renderChannels } from "./views/channels.ts";
 import { renderChat } from "./views/chat.ts";
 import { renderConfig } from "./views/config.ts";
+import { renderConnections } from "./views/connections.ts";
 import { renderCron } from "./views/cron.ts";
 import { renderDebug } from "./views/debug.ts";
 import { renderExecApprovalPrompt } from "./views/exec-approval.ts";
@@ -338,6 +339,35 @@ export function renderApp(state: AppViewState) {
                 },
                 onConnect: () => state.connect(),
                 onRefresh: () => state.loadOverview(),
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "connections"
+            ? renderConnections({
+                connected: state.connected,
+                hello: state.hello,
+                settings: state.settings,
+                password: state.password,
+                configForm: configValue,
+                configLoading: state.configLoading,
+                configSaving: state.configSaving,
+                configDirty: state.configFormDirty,
+                onSettingsChange: (next) => state.applySettings(next),
+                onPasswordChange: (next) => (state.password = next),
+                onConnect: () => state.connect(),
+                onConfigPatch: (path, value) => updateConfigFormValue(state, path, value),
+                onConfigSave: async () => {
+                  const previousMode = state.configFormMode;
+                  state.configFormMode = "form";
+                  try {
+                    await saveConfig(state);
+                  } finally {
+                    state.configFormMode = previousMode;
+                  }
+                },
+                onConfigReload: () => loadConfig(state),
               })
             : nothing
         }

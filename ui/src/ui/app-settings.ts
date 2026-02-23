@@ -190,6 +190,9 @@ export async function refreshActiveTab(host: SettingsHost) {
   if (host.tab === "channels") {
     await loadChannelsTab(host);
   }
+  if (host.tab === "connections") {
+    await loadConfig(host as unknown as OpenClawApp);
+  }
   if (host.tab === "instances") {
     await loadPresence(host as unknown as OpenClawApp);
   }
