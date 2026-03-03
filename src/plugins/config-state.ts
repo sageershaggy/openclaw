@@ -17,6 +17,15 @@ export const BUNDLED_ENABLED_BY_DEFAULT = new Set<string>([
   "device-pair",
   "phone-control",
   "talk-voice",
+  "telegram",
+  "whatsapp",
+  "discord",
+  "irc",
+  "googlechat",
+  "slack",
+  "signal",
+  "imessage",
+  "nostr",
 ]);
 
 const normalizeList = (value: unknown): string[] => {
